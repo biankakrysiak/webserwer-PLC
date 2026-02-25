@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pl-PL">
+    <head>
+        <meta charset="UTF-8">
+        <!-- <meta http-equiv="refresh" content="2; URL=index.html"> -->
+        <title>Webserver PLC</title>
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+
+        <div>ODCZYT DANYCH Z PLC</div>
+        <div>___________________</div>
+        <div>startplc :="TrybSterowania_DB".startPlc:</div>
+        <div>zaklocenie01 :="TrybSterowania_DB".zaklocenie01:</div>
+        <div>start :="TrybSterowania_DB".start:</div>
+        <div>stop :="TrybSterowania_DB".stop:</div>
+    
+    <div>STEROWANIE Z WWW</div>
+    <div>_________________</div>
+    <form>
+        <input type="number" name='"TrybSterowania_DB".startPlc' value=':="TrybSterowania_DB".startPlc:'/>
+    </form>
+    <div>Reset.</div>
+    <div class="button">
+        <form>
+            <input class="btn on" type="submit" value="START">
+            <input class="hidden" name='"TrybSterowania_DB".startPlc' value="1">
+        </form>
+        <form>
+            <input class="btn off" type="submit" value="STOP">
+            <input class="hidden" name='"TrybSterowania_DB".startPlc' value="0">
+        </form>
+    </div>
+    </body>
+    <script src="jLIB/jquery-4.0.0.min.js"></script>
+</html>
