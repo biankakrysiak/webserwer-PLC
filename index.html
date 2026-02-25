@@ -4,9 +4,27 @@
         <meta charset="UTF-8">
         <!-- <meta http-equiv="refresh" content="2; URL=index.html"> -->
         <title>Webserver PLC</title>
-        <link rel="stylesheet" href="styles.css">
+        <link rel="stylesheet" href="./styles.css">
     </head>
     <body>
+        <header class="topbar">
+            <div class="topbar-left">
+                <div class="topbar-title">WEBSERWER PLC</div>
+                <div class="topbar-sub">Siemens S7-1200 · Sterowanie Pompą</div>
+            </div>
+            <div class="topbar-center">
+                <div class="connection-indicator">
+                    <span class="conn-dot" id="conn-dot"></span>
+                    <span id="conn-label">POŁĄCZONY</span>
+                </div>
+                <div class="topbar-db">DB: <b>TrybSterowania_DB</b></div>
+            </div>
+            <div class="topbar-right">
+                <div class="clock-time" id="clock-time">--:--:--</div>
+                <div class="date-time" id="date-time">--.--.----</div>
+            </div>
+            <div class="refresh-info">Ostatnia zmiana: <span id="last-change">-</span></div>
+        </header>
 
         <div>ODCZYT DANYCH Z PLC</div>
         <div>___________________</div>
