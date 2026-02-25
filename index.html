@@ -26,13 +26,39 @@
             <div class="refresh-info">Ostatnia zmiana: <span id="last-change">-</span></div>
         </header>
 
-        <div>ODCZYT DANYCH Z PLC</div>
-        <div>___________________</div>
-        <div>startplc :="TrybSterowania_DB".startPlc:</div>
-        <div>zaklocenie01 :="TrybSterowania_DB".zaklocenie01:</div>
-        <div>start :="TrybSterowania_DB".start:</div>
-        <div>stop :="TrybSterowania_DB".stop:</div>
-    
+        <main class="main-grid">
+            <section class="card panel-visual" id="">
+                <!-- tbd wizualizacja pompy -->
+            </section>
+            
+            <section class="card panel-read">
+                <div class="card-header">
+                    <span class="card-title">Odczyt zmiennych PLC</span>
+                    <span class="card-badge" id="event-badge">● ZDARZENIOWE</span>
+                </div>
+                <div class="card-body">
+                    <div class="var-group-title">Wejścia fizyczne</div>
+                    <div class="var-table">
+                        <div class="var-row" data-var="startPLC">
+                            <span class="var-addr">%I0.0</span>
+                            <span class="var-name">startPlc</span>
+                            <span class="var-type">Bool</span>
+                            <span class="var-val bool-val" id="vd-startPlc">FALSE</span>
+                        </div>
+                        <div class="var-row" data-var="zaklocenie01">
+                            <span class="var-addr">%I0.3</span>
+                            <span class="var-name">zaklocenie01</span>
+                            <span class="var-type">Bool</span>
+                            <span class="var-val bool-val" id="vd-zaklocenie01">FALSE</span>
+                        </div>
+                        
+
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
     <div>STEROWANIE Z WWW</div>
     <div>_________________</div>
     <form>
@@ -49,6 +75,20 @@
             <input class="hidden" name='"TrybSterowania_DB".startPlc' value="0">
         </form>
     </div>
+        <!-- AWP, serwer S7 podstawia wartości przy każdym GET tej strony -->
+        <div style="display:none">
+            <div>ODCZYT DANYCH Z PLC</div>
+            <div>startPlc :="TrybSterowania_DB".startPlc:</div>
+            <div>zaklocenie01 :="TrybSterowania_DB".zaklocenie01:</div>
+            <div>start :="TrybSterowania_DB".start:</div>
+            <div>stop :="TrybSterowania_DB".stop:</div>
+            <div>startHMI :="TrybSterowania_DB".startHMI:</div>
+            <div>ZL :="TrybSterowania_DB"."Z/L":</div>
+        </div>
+
+        <script src="jLIB/jquery-4.0.0.min.js"></script>
+        <script src="js/plc-update.js"></script>
+
     </body>
-    <script src="jLIB/jquery-4.0.0.min.js"></script>
+    
 </html>

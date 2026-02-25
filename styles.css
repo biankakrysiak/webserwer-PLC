@@ -28,6 +28,19 @@
     --shadow:       0 4px 24px rgba(0,0,0,.4);
 }
 
+body{
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-ui);
+    font-weight: 400;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-image:
+        linear-gradient(rgba(0,212,255,.015) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,212,255,.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+}
 
 
 /* header */
@@ -135,3 +148,64 @@
     text-align: right;
 }
 .refresh-info span { color: var(--green); }
+
+/* main */
+.main-grid{
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 14px;
+    padding: 16px 20px;
+}
+
+/* tabela z parametrami cards */
+.card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    display: flex;
+    flex-direction: column;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+}
+
+.card-header {
+    padding: 10px 16px;
+    background: rgba(255,255,255,.03);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.card-title {
+    font-family: var(--font-ui);
+    font-weight: 600;
+    font-size: .75rem;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    flex: 1;
+}
+
+.card-badge {
+    font-family: var(--font-mono);
+    font-size: .6rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    border: 1px solid rgba(0,212,255,.3);
+}
+
+.card-body {
+    padding: 16px;
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* panel wizualizacji pompy TBD*/
+
+
