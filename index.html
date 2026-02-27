@@ -175,31 +175,36 @@
                             <button class="btn btn-reset" type="submit" disabled id="ctrl-reset">↺ RESET ZAKŁÓCENIA</button>
                         </form>
                     </div>
-
-
                 </div>
+            </section>
 
-            </div>
-
+            <section class="card panel-chart">
+                <div class="card-header">
+                    <span class="card-title">Wykres trendów</span>
+                    <div class="chart-legend">
+                        <span class="legend-rpm">Obroty/min</span>
+                        <span class="legend-liter">Litry/obrót</span>
+                        <span class="legend-pot">Potencjo ÷100</span>
+                    </div>
+                    <button class="btn-clear" onclick="clearChart()">Wyczyść</button>
+                </div>
+                <div class="card-body chart-body">
+                    <canvas id="trend-chart"></canvas>
+                </div>
+            
+            </section>
+                        <section class="card panel-log">
+                <div class="card-header">
+                    <span class="card-title">Dziennik zdarzeń</span>
+                    <button class="btn-clear" onclick="clearLog()">Wyczyść</button>
+                </div>
+                <div class="card-body log-body">
+                    <div id="log-list"></div>
+                </div>
+            </section>
 
         </main>
 
-    <div>STEROWANIE Z WWW</div>
-    <div>_________________</div>
-    <form>
-        <input type="number" name='"TrybSterowania_DB".startPlc' value=':="TrybSterowania_DB".startPlc:'/>
-    </form>
-    <div>Reset.</div>
-    <div class="button">
-        <form>
-            <input class="btn on" type="submit" value="START">
-            <input class="hidden" name='"TrybSterowania_DB".startPlc' value="1">
-        </form>
-        <form>
-            <input class="btn off" type="submit" value="STOP">
-            <input class="hidden" name='"TrybSterowania_DB".startPlc' value="0">
-        </form>
-    </div>
         <!-- AWP, serwer S7 podstawia wartości przy każdym GET tej strony -->
         <div style="display:none">
             <div>ODCZYT DANYCH Z PLC</div>
@@ -210,6 +215,12 @@
             <div>startHMI :="TrybSterowania_DB".startHMI:</div>
             <div>ZL :="TrybSterowania_DB"."Z/L":</div>
         </div>
+
+        <footer class="footer">
+            <span>Siemens S7-1200 · TIA Portal · AWP</span>
+            <span>Odświeżanie: <strong>zdarzeniowe</strong></span>
+            <span id="event-count">Zdarzenia: 0</span>
+        </footer>
 
         <script src="jLIB/jquery-4.0.0.min.js"></script>
         <script src="js/plc-update.js"></script>
