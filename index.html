@@ -38,24 +38,149 @@
                 </div>
                 <div class="card-body">
                     <div class="var-group-title">Wejścia fizyczne</div>
-                    <div class="var-table">
-                        <div class="var-row" data-var="startPLC">
-                            <span class="var-addr">%I0.0</span>
-                            <span class="var-name">startPlc</span>
-                            <span class="var-type">Bool</span>
-                            <span class="var-val bool-val" id="vd-startPlc">FALSE</span>
+                        <div class="var-table">
+                            <div>startPlc :="TrybSterowania_DB".startPlc:</div>
+                            <div class="var-row" data-var="startPLC">
+                                <span class="var-addr">%I0.0</span>
+                                <span class="var-name">startPlc</span>
+                                <span class="var-type">Bool</span>
+                                <span class="var-val bool-val" id="vd-startPlc">FALSE</span>
+                            </div>
+                            <div>zaklocenie01 :="TrybSterowania_DB".zaklocenie01:</div>
+                            <div class="var-row" data-var="zaklocenie01">
+                                <span class="var-addr">%I0.3</span>
+                                <span class="var-name">zaklocenie01</span>
+                                <span class="var-type">Bool</span>
+                                <span class="var-val bool-val" id="vd-zaklocenie01">FALSE</span>
+                            </div>
                         </div>
-                        <div class="var-row" data-var="zaklocenie01">
-                            <span class="var-addr">%I0.3</span>
-                            <span class="var-name">zaklocenie01</span>
-                            <span class="var-type">Bool</span>
-                            <span class="var-val bool-val" id="vd-zaklocenie01">FALSE</span>
+                    <div class="var-group-title">Wyjścia</div>
+                        <div class="var-table">
+                            <div class="var-row" data-var="start">
+                                <span class="var-addr">DB3.DBX6.0</span>
+                                <span class="var-name">.start</span>
+                                <span class="var-type">Bool</span>
+                                <span class="var-val bool-val" id="vd-start">-</span>
+                            </div>
+                            <div class="var-row" data-var="stop">
+                                <span class="var-addr">DB3.DBX6.1</span>
+                                <span class="var-name">.stop</span>
+                                <span class="var-type">Bool</span>
+                                <span class="var-val bool-val" id="vd-stop">-</span>
+                            </div>
+                            <div class="var-row" data-var="zwieksz">
+                                <span class="var-addr">DB3.DBX6.2</span>
+                                <span class="var-name">.zwieksz</span>
+                                <span class="var-type">Bool</span>
+                                <span class="var-val bool-val" id="vd-zwieksz">-</span>
+                            </div>
+                            <div class="var-row" data-var="zmniejsz">
+                                <span class="var-addr">DB3.DBX6.3</span>
+                                <span class="var-name">.zmniejsz</span>
+                                <span class="var-type">Bool</span>
+                                <span class="var-val bool-val" id="vd-zmniejsz">-</span>
+                            </div>
                         </div>
-                        
-
-                    </div>
+                    <div class="var-group-title">Markery i pomiary</div>
+                        <div class="var-row" data-var="start">
+                            <div class="var-row" data-var="ObrotyReal">
+                                <span class="var-addr">%MD2020</span>
+                                <span class="var-name">ObrotyReal</span>
+                                <span class="var-type">Real</span>
+                                <span class="var-val val-num" id="vd-ObrotyReal">-</span>
+                            </div>
+                            <div class="var-row" data-var="ObrotySuma">
+                                <span class="var-addr">%MD2012</span>
+                                <span class="var-name">ObrotySuma</span>
+                                <span class="var-type">UDInt</span>
+                                <span class="var-val val-num" id="vd-ObrotySuma">-</span>
+                            </div>
+                        </div>
                 </div>
             </section>
+
+            <section class="card panel-ctrl">
+                <div class="card-header">
+                    <span class="card-title">Sterowanie z WWW</span>
+                    <span class="mode-badge" id="mode-badge">LOKALNY</span>
+                </div>
+                <div class="card-body ctrl-body">
+                    <div class="ctrl-section">
+                        <div class="ctrl-section-title">Tryb sterowania</div>
+                        <div class="mode-buttons">
+                            <button class="btn btn-mode btn-mode-local active" id="btn-local"
+                                    onclick="setMode(false)">LOKALNY</button>
+                            <button class="btn btn-mode btn-mode-remote" id="btn-remote"
+                                    onclick="setMode(true)">ZDALNY (WWW)</button>
+                        </div>
+                        <div class="mode-info" id="mode-info">ℹ Sterowanie WWW wymaga trybu ZDALNEGO</div>
+                    </div>
+
+                    <div class="ctrl-section">
+                        <div class="ctrl-section-title">Uruchomienie pompy</div>
+                        <div class="btn-row">
+                            <form>
+                                <input class="hidden" name='"TrybSterowania_DB".startHMI' value="1">
+                                <button class="btn btn-start" type="submit" disabled id="ctrl-start">▶ START</button>
+                            </form>
+                            <form>
+                                <input class="hidden" name='"TrybSterowania_DB".startHMI' value="0">
+                                <button class="btn btn-stop" type="submit" disabled id="ctrl-stop">■ STOP</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="ctrl-section">
+                        <div class="ctrl-section-title">Regulacja obrotów</div>
+                        <div class="btn-row">
+                            <form>
+                                <input class="hidden" name='"TrybSterowania_DB".zwiekszHMI' value="1">
+                                <button class="btn btn-up" type="submit" disabled id="ctrl-up">▲ ZWIĘKSZ</button>
+                            </form>
+                            <form>
+                                <input class="hidden" name='"TrybSterowania_DB".zmniejszHMI' value="1">
+                                <button class="btn btn-down" type="submit" disabled id="ctrl-down">▼ ZMNIEJSZ</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="ctrl-section">
+                        <div class="ctrl-section-title">Potencjometr (%MW40)</div>
+                        <div class="slider-wrap">
+                            <div class="slider-header">
+                                <span>Wartość</span>
+                                <span id="slider-disp">200</span>
+                            </div>
+                            <div class="slider-row">
+                                <span class="slider-bound">0</span>
+                                <input type="range" id="slider-pot" min="0" max="27600" step="200"
+                                       value="200" disabled
+                                       oninput="document.getElementById('slider-disp').textContent=this.value">
+                                <span class="slider-bound">27600</span>
+                            </div>
+                            <form>
+                                <input class="hidden" id="slider-hidden" name='"Potencjo"' value="200">
+                                <button class="btn btn-set" type="submit" disabled id="ctrl-set"
+                                        onclick="document.getElementById('slider-hidden').value=document.getElementById('slider-pot').value">
+                                    ZAPISZ DO PLC
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="ctrl-section">
+                        <div class="ctrl-section-title">Alarmy</div>
+                        <form>
+                            <input class="hidden" name='"zaklocenie01"' value="0">
+                            <button class="btn btn-reset" type="submit" disabled id="ctrl-reset">↺ RESET ZAKŁÓCENIA</button>
+                        </form>
+                    </div>
+
+
+                </div>
+
+            </div>
+
 
         </main>
 
