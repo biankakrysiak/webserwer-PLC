@@ -82,9 +82,9 @@
                             </div>
                         </div>
                     <div class="var-group-title">Markery i pomiary</div>
-                        <div class="var-row" data-var="start">
+                        
                             <div class="var-row" data-var="ObrotyReal">
-                                <span class="var-addr">%MD2020</span>
+                                <span class="var-addr">MD2020</span>
                                 <span class="var-name">ObrotyReal</span>
                                 <span class="var-type">Real</span>
                                 <span class="var-val val-num" id="vd-ObrotyReal">-</span>
@@ -95,6 +95,7 @@
                                 <span class="var-type">UDInt</span>
                                 <span class="var-val val-num" id="vd-ObrotySuma">-</span>
                             </div>
+                            
                         </div>
                 </div>
             </section>
@@ -113,7 +114,6 @@
                             <button class="btn btn-mode btn-mode-remote" id="btn-remote"
                                     onclick="setMode(true)">ZDALNY (WWW)</button>
                         </div>
-                        <div class="mode-info" id="mode-info">ℹ Sterowanie WWW wymaga trybu ZDALNEGO</div>
                     </div>
 
                     <div class="ctrl-section">
@@ -121,11 +121,11 @@
                         <div class="btn-row">
                             <form>
                                 <input class="hidden" name='"TrybSterowania_DB".startHMI' value="1">
-                                <button class="btn btn-start" type="submit" disabled id="ctrl-start">▶ START</button>
+                                <button class="btn btn-start" type="submit" disabled id="ctrl-start">START</button>
                             </form>
                             <form>
                                 <input class="hidden" name='"TrybSterowania_DB".startHMI' value="0">
-                                <button class="btn btn-stop" type="submit" disabled id="ctrl-stop">■ STOP</button>
+                                <button class="btn btn-stop" type="submit" disabled id="ctrl-stop">STOP</button>
                             </form>
                         </div>
                     </div>
@@ -172,7 +172,7 @@
                         <div class="ctrl-section-title">Alarmy</div>
                         <form>
                             <input class="hidden" name='"zaklocenie01"' value="0">
-                            <button class="btn btn-reset" type="submit" disabled id="ctrl-reset">↺ RESET ZAKŁÓCENIA</button>
+                            <button class="btn btn-reset" type="submit" disabled id="ctrl-reset">RESET ZAKŁÓCENIA</button>
                         </form>
                     </div>
                 </div>
@@ -207,13 +207,42 @@
 
         <!-- AWP, serwer S7 podstawia wartości przy każdym GET tej strony -->
         <div style="display:none">
-            <div>ODCZYT DANYCH Z PLC</div>
+            <!-- TrybSterowania_DB [DB3] – Input (FB1) -->
+             <div>ODCZYT DANYCH Z PLC</div>
             <div>startPlc :="TrybSterowania_DB".startPlc:</div>
-            <div>zaklocenie01 :="TrybSterowania_DB".zaklocenie01:</div>
+            <div>zwiekszaPlc :="TrybSterowania_DB".zwiekszaPlc:</div>
+            <div>zmniejszaPlc :="TrybSterowania_DB".zmniejszaPlc:</div>
+            <div>ZL :="TrybSterowania_DB"."Z/L":</div>
+            <div>startHMI :="TrybSterowania_DB".startHMI:</div>
+            <div>zwiekszHMI :="TrybSterowania_DB".zwiekszHMI:</div>
+            <div>zaklocenie01DB :="TrybSterowania_DB".zaklocenie01:</div>
+            <div>zmniejszHMI :="TrybSterowania_DB".zmniejszHMI:</div>
+            <!-- TrybSterowania_DB [DB3] – Output (FB1) -->
             <div>start :="TrybSterowania_DB".start:</div>
             <div>stop :="TrybSterowania_DB".stop:</div>
-            <div>startHMI :="TrybSterowania_DB".startHMI:</div>
-            <div>ZL :="TrybSterowania_DB"."Z/L":</div>
+            <div>zwieksz :="TrybSterowania_DB".zwieksz:</div>
+            <div>zmniejsz :="TrybSterowania_DB".zmniejsz:</div>
+            <!-- markery i pomiary -->
+            <div>Sprzeg :="Sprzeg":</div>
+            <div>Potencjo :="Potencjo":</div>
+            <div>StanPotencjometru :="StanPotencjometru":</div>
+            <div>Poziom :="Poziom":</div>
+            <div>ObortyPamiec :="ObortyPamiec":</div>
+            <div>perMin :="per min":</div>
+            <div>perLiter :="per liter":</div>
+            <div>ObrotyInt :="ObrotyInt":</div>
+            <div>ObrotyReal :="ObrotyReal":</div>
+            <div>ObrotySuma :="ObrotySuma":</div>
+            <div>ObecnaLiczbaCykli :="ObecnaLiczbaCykli":</div>
+            <div>buforzaklocen :="buforzaklocen":</div>
+            <div>zaklocenie22001 :="zaklocenie22001":</div>
+            <!-- wejścia fizyczne -->
+            <div>StartPLC :="StartPLC":</div>
+            <div>ZwiekszPLC :="ZwiekszPLC":</div>
+            <div>ZmniejszPLC :="ZmniejszPLC":</div>
+            <div>zaklocenie01 :="zaklocenie01":</div>
+            <div>ManualPotencjometr :="ManualPotencjometr":</div>
+            <div>ObrotyEnkodera :="ObrotyEnkodera":</div>
         </div>
 
         <footer class="footer">
