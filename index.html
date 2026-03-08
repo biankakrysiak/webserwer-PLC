@@ -39,19 +39,17 @@
                 <div class="card-body">
                     <div class="var-group-title">Wejścia fizyczne</div>
                         <div class="var-table">
-                            <div>startPlc :="TrybSterowania_DB".startPlc:</div>
                             <div class="var-row" data-var="startPLC">
                                 <span class="var-addr">%I0.0</span>
                                 <span class="var-name">startPlc</span>
                                 <span class="var-type">Bool</span>
-                                <span class="var-val bool-val" id="vd-startPlc">FALSE</span>
+                                <span class="var-val bool-val" id="vd-startPlc">-</span>
                             </div>
-                            <div>zaklocenie01 :="TrybSterowania_DB".zaklocenie01:</div>
                             <div class="var-row" data-var="zaklocenie01">
                                 <span class="var-addr">%I0.3</span>
                                 <span class="var-name">zaklocenie01</span>
                                 <span class="var-type">Bool</span>
-                                <span class="var-val bool-val" id="vd-zaklocenie01">FALSE</span>
+                                <span class="var-val bool-val" id="vd-zaklocenie01">-</span>
                             </div>
                         </div>
                     <div class="var-group-title">Wyjścia</div>
@@ -82,7 +80,7 @@
                             </div>
                         </div>
                     <div class="var-group-title">Markery i pomiary</div>
-                        
+                        <div class="var-table">
                             <div class="var-row" data-var="ObrotyReal">
                                 <span class="var-addr">MD2020</span>
                                 <span class="var-name">ObrotyReal</span>
@@ -95,7 +93,6 @@
                                 <span class="var-type">UDInt</span>
                                 <span class="var-val val-num" id="vd-ObrotySuma">-</span>
                             </div>
-                            
                         </div>
                 </div>
             </section>
@@ -110,9 +107,9 @@
                         <div class="ctrl-section-title">Tryb sterowania</div>
                         <div class="mode-buttons">
                             <button class="btn btn-mode btn-mode-local active" id="btn-local"
-                                    onclick="setMode(false)">LOKALNY</button>
+                                    onclick="window.setMode(false)">LOKALNY</button>
                             <button class="btn btn-mode btn-mode-remote" id="btn-remote"
-                                    onclick="setMode(true)">ZDALNY (WWW)</button>
+                                    onclick="window.setMode(true)">ZDALNY (WWW)</button>
                         </div>
                     </div>
 
@@ -186,17 +183,17 @@
                         <span class="legend-liter">Litry/obrót</span>
                         <span class="legend-pot">Potencjo ÷100</span>
                     </div>
-                    <button class="btn-clear" onclick="clearChart()">Wyczyść</button>
+                    <button class="btn-clear" onclick="window.clearChart()">Wyczyść</button>
                 </div>
                 <div class="card-body chart-body">
                     <canvas id="trend-chart"></canvas>
                 </div>
-            
             </section>
-                        <section class="card panel-log">
+
+            <section class="card panel-log">
                 <div class="card-header">
                     <span class="card-title">Dziennik zdarzeń</span>
-                    <button class="btn-clear" onclick="clearLog()">Wyczyść</button>
+                    <button class="btn-clear" onclick="window.clearLog()">Wyczyść</button>
                 </div>
                 <div class="card-body log-body">
                     <div id="log-list"></div>
@@ -205,14 +202,18 @@
 
         </main>
 
-        <!-- AWP, serwer S7 podstawia wartości przy każdym GET tej strony -->
+        <!-- 
+             AWP – serwer S7 podstawia wartości przy każdym GET strony.
+             Format przed podstawieniem: NazwaKlucza :="Tag":
+             Format po podstawieniu S7:  NazwaKlucza :=0: lub :=1: lub :=1234.5:
+        -->
+
         <div style="display:none">
-            <!-- TrybSterowania_DB [DB3] – Input (FB1) -->
-             <div>ODCZYT DANYCH Z PLC</div>
+            <!-- TrybSterowania_DB [DB3] - Input (FB1) -->
             <div>startPlc :="TrybSterowania_DB".startPlc:</div>
             <div>zwiekszaPlc :="TrybSterowania_DB".zwiekszaPlc:</div>
             <div>zmniejszaPlc :="TrybSterowania_DB".zmniejszaPlc:</div>
-            <div>ZL :="TrybSterowania_DB"."Z/L":</div>
+            <!-- <div>ZL :="TrybSterowania_DB".ZL:</div> -->
             <div>startHMI :="TrybSterowania_DB".startHMI:</div>
             <div>zwiekszHMI :="TrybSterowania_DB".zwiekszHMI:</div>
             <div>zaklocenie01DB :="TrybSterowania_DB".zaklocenie01:</div>
@@ -252,7 +253,7 @@
         </footer>
 
         <script src="jLIB/jquery-4.0.0.min.js"></script>
-        <script src="js/plc-update.js"></script>
+        <script src="js/vars-update.js"></script>
 
     </body>
     
