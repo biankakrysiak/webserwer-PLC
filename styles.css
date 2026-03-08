@@ -106,6 +106,7 @@ body{
     box-shadow: 0 0 8px var(--green);
     animation: conn-blink 2s ease-in-out infinite;
 }
+
 .conn-dot.disconnected {
     background: var(--red);
     box-shadow: 0 0 8px var(--red);
@@ -282,14 +283,13 @@ body{
 }
 
 .mode-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-/* ===== SPÓJNY SYSTEM PRZYCISKÓW (TYLKO ROOT COLORS) ===== */
+/* przyciski */
 
 .btn-row { 
     display: flex; 
     gap: 8px; 
 }
 
-/* baza */
 .btn,
 .btn-mode {
     display: inline-flex;
@@ -310,29 +310,23 @@ body{
     flex: 1;
 }
 
-/* hover */
 .btn:hover:not(:disabled),
 .btn-mode:hover:not(:disabled) {
     border-color: var(--accent);
     color: var(--text);
 }
 
-/* klik */
 .btn:active:not(:disabled),
 .btn-mode:active:not(:disabled) {
     transform: translateY(1px);
 }
 
-/* disabled */
 .btn:disabled,
 .btn-mode:disabled {
     opacity: .35;
     cursor: not-allowed;
 }
 
-/* ===== STANY AKTYWNE ===== */
-
-/* START + ZDALNY */
 .btn-start.active,
 .btn-mode-remote.active {
     background: var(--panel);
@@ -341,7 +335,6 @@ body{
     box-shadow: 0 0 10px var(--green-dim);
 }
 
-/* STOP */
 .btn-stop.active {
     background: var(--panel);
     color: var(--red);
@@ -349,14 +342,12 @@ body{
     box-shadow: 0 0 10px var(--red-dim);
 }
 
-/* LOKALNY */
 .btn-mode-local.active {
     background: var(--panel);
     color: var(--yellow);
     border-color: var(--yellow);
 }
 
-/* pozostałe */
 .btn-up,
 .btn-down,
 .btn-reset,
