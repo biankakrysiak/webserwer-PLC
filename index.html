@@ -1,3 +1,10 @@
+<!-- AWP_In_Variable Name='"TrybSterowania_DB".startHMI' -->
+<!-- AWP_In_Variable Name='"TrybSterowania_DB".zwiekszHMI' -->
+<!-- AWP_In_Variable Name='"TrybSterowania_DB".zmniejszHMI' -->
+<!-- AWP_In_Variable Name='"TrybSterowania_DB".ZL' -->
+<!-- AWP_In_Variable Name='"TrybSterowania_DB".zaklocenie01' -->
+<!-- AWP_In_Variable Name='"Potencjo"' -->
+<!-- AWP_In_Variable Name='"zaklocenie01"' -->
 <!DOCTYPE html>
 <html lang="pl-PL">
     <head>
@@ -28,7 +35,181 @@
 
         <main class="main-grid">
             <section class="card panel-visual" id="">
-                <!-- tbd wizualizacja pompy -->
+                <!-- wizualizacja pompy - SVG generowany statycznie, JS aktualizuje wartości -->
+                <div class="card-header">
+                    <span class="card-title">Wizualizacja układu</span>
+                    <!-- lampki sygnalizacyjne -->
+                    <div class="viz-status-bar">
+                        <span class="lamp-item" id="lamp-praca">
+                            <span class="lamp-bulb"></span>
+                            <span class="lamp-label">PRACA</span>
+                        </span>
+                        <span class="lamp-item" id="lamp-stop">
+                            <span class="lamp-bulb"></span>
+                            <span class="lamp-label">STOP</span>
+                        </span>
+                        <span class="lamp-item" id="lamp-alarm">
+                            <span class="lamp-bulb"></span>
+                            <span class="lamp-label">ALARM</span>
+                        </span>
+                        <span class="lamp-item" id="lamp-zdalne">
+                            <span class="lamp-bulb"></span>
+                            <span class="lamp-label">ZDALNE</span>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="card-body viz-body">
+                    <svg id="viz-svg" viewBox="0 0 520 260" xmlns="http://www.w3.org/2000/svg">
+                        <defs>
+                            <linearGradient id="tank-grad" x1="0" y1="0" x2="1" y2="0">
+                                <stop offset="0%"   stop-color="#1a2d42"/>
+                                <stop offset="100%" stop-color="#243548"/>
+                            </linearGradient>
+                            <linearGradient id="fluid-grad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0%"   stop-color="#00d4ff" stop-opacity="0.7"/>
+                                <stop offset="100%" stop-color="#0066aa" stop-opacity="0.9"/>
+                            </linearGradient>
+                            <radialGradient id="pump-grad" cx="50%" cy="50%" r="50%">
+                                <stop offset="0%"   stop-color="#2a3f58"/>
+                                <stop offset="100%" stop-color="#1a2a3a"/>
+                            </radialGradient>
+                            <filter id="glow-strong">
+                                <feGaussianBlur stdDeviation="3" result="blur"/>
+                                <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                            </filter>
+                            <!-- clip zbiornika wejściowego -->
+                            <clipPath id="tank-clip">
+                                <rect x="32" y="32" width="76" height="166"/>
+                            </clipPath>
+                            <!-- clip zbiornika wyjściowego -->
+                            <clipPath id="tank-out-clip">
+                                <rect x="412" y="32" width="76" height="166"/>
+                            </clipPath>
+                        </defs>
+
+                        <!--  ZBIORNIK WEJŚCIOWY (lewy)  -->
+                        <rect x="30" y="30" width="80" height="170" rx="3"
+                              fill="url(#tank-grad)" stroke="#32465c" stroke-width="1.5"/>
+                        <!-- poziom cieczy - y i height ustawiane przez JS -->
+                        <rect id="tank-fluid-in" x="32" y="198" width="76" height="0"
+                              fill="url(#fluid-grad)" clip-path="url(#tank-clip)"/>
+                        <!-- skala -->
+                        <line x1="108" y1="32"  x2="114" y2="32"  stroke="#445" stroke-width="1"/>
+                        <line x1="108" y1="115" x2="112" y2="115" stroke="#445" stroke-width="1"/>
+                        <line x1="108" y1="198" x2="114" y2="198" stroke="#445" stroke-width="1"/>
+                        <text x="116" y="35"  font-family="Share Tech Mono,monospace" font-size="7" fill="#556">100%</text>
+                        <text x="116" y="118" font-family="Share Tech Mono,monospace" font-size="7" fill="#556"> 50%</text>
+                        <text x="116" y="201" font-family="Share Tech Mono,monospace" font-size="7" fill="#556">  0%</text>
+                        <text x="70" y="218" text-anchor="middle"
+                              font-family="Share Tech Mono,monospace" font-size="8" fill="#7a9ab5" letter-spacing="1">ZBIORNIK</text>
+                        <text id="tank-level-txt" x="70" y="20" text-anchor="middle"
+                              font-family="Share Tech Mono,monospace" font-size="9" fill="#00d4ff">--.-- %</text>
+
+                        <!--  RURA SSAWNA (zbiornik -> pompa)  -->
+                        <!-- rura - dwie linie (obramowanie + wnętrze ciemne) -->
+                        <line x1="110" y1="198" x2="240" y2="198" stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
+                        <line x1="110" y1="198" x2="240" y2="198" stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
+                        <line x1="240" y1="170" x2="240" y2="200" stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
+                        <line x1="240" y1="170" x2="240" y2="200" stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
+                        <!-- fluid animowany - opacity 0 gdy pompa stoi -->
+                        <line id="pipe-in-fluid" x1="112" y1="198" x2="238" y2="198"
+                              stroke="#00d4ff" stroke-width="3" stroke-linecap="round"
+                              stroke-dasharray="8 6" stroke-opacity="0">
+                            <animate attributeName="stroke-dashoffset" from="0" to="-28" dur="0.7s" repeatCount="indefinite"/>
+                        </line>
+                        <line id="pipe-v-in-fluid" x1="240" y1="172" x2="240" y2="198"
+                              stroke="#00d4ff" stroke-width="3" stroke-linecap="round"
+                              stroke-dasharray="8 6" stroke-opacity="0">
+                            <animate attributeName="stroke-dashoffset" from="0" to="-28" dur="0.7s" repeatCount="indefinite"/>
+                        </line>
+
+                        <!--  POMPA ODŚRODKOWA  -->
+                        <g id="svg-pump" transform="translate(240,130)">
+                            <!-- obudowa -->
+                            <circle id="svg-pump-circle" r="42" fill="url(#pump-grad)" stroke="#32465c" stroke-width="2"/>
+                            <circle r="32" fill="none" stroke="#243548" stroke-width="8"/>
+                            <!-- wirnik - klasa spinning / spinning-slow dodawana przez JS -->
+                            <g id="pump-rotor">
+                                <line x1="0"    y1="-22"  x2="0"   y2="-10"  stroke="#29e1ff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+                                <line x1="15.6" y1="-15.6" x2="7.1" y2="-7.1" stroke="#29e1ff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+                                <line x1="22"   y1="0"    x2="10"  y2="0"    stroke="#29e1ff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+                                <line x1="15.6" y1="15.6"  x2="7.1" y2="7.1"  stroke="#29e1ff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+                                <line x1="0"    y1="22"   x2="0"   y2="10"   stroke="#29e1ff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+                                <line x1="-15.6" y1="15.6" x2="-7.1" y2="7.1" stroke="#29e1ff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+                                <line x1="-22"  y1="0"    x2="-10" y2="0"    stroke="#29e1ff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+                                <line x1="-15.6" y1="-15.6" x2="-7.1" y2="-7.1" stroke="#29e1ff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
+                                <circle r="6" fill="#1a2d42" stroke="#29e1ff" stroke-width="1.5"/>
+                            </g>
+                            <text id="pump-rpm-txt" x="0" y="55" text-anchor="middle"
+                                  font-family="Share Tech Mono,monospace" font-size="8" fill="#7a9ab5">0 rpm</text>
+                            <text x="0" y="-50" text-anchor="middle"
+                                  font-family="Share Tech Mono,monospace" font-size="8" fill="#7a9ab5" letter-spacing="1">POMPA P-01</text>
+                        </g>
+
+                        <!-- ikona alarmu - ukryta gdy brak zakłócenia -->
+                        <g id="svg-fault" class="hidden" transform="translate(240,130)">
+                            <polygon points="0,-18 16,10 -16,10" fill="none" stroke="#ff5252"
+                                     stroke-width="2.5" filter="url(#glow-strong)"/>
+                            <text x="0" y="7" text-anchor="middle" font-family="Share Tech Mono,monospace"
+                                  font-size="11" fill="#ff5252" font-weight="bold">!</text>
+                        </g>
+
+                        <!--  RURA TŁOCZNA (pompa → zbiornik wyjściowy)  -->
+                        <line x1="240" y1="88"  x2="240" y2="62"  stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
+                        <line x1="240" y1="88"  x2="240" y2="62"  stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
+                        <line x1="238" y1="60"  x2="412" y2="60"  stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
+                        <line x1="238" y1="60"  x2="412" y2="60"  stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
+                        <line x1="412" y1="60"  x2="412" y2="34"  stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
+                        <line x1="412" y1="60"  x2="412" y2="34"  stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
+                        <!-- fluid tłoczny -->
+                        <line id="pipe-v-out-fluid" x1="240" y1="90"  x2="240" y2="64"
+                              stroke="#00e676" stroke-width="3" stroke-linecap="round"
+                              stroke-dasharray="8 6" stroke-opacity="0">
+                            <animate attributeName="stroke-dashoffset" from="-28" to="0" dur="0.7s" repeatCount="indefinite"/>
+                        </line>
+                        <line id="pipe-out-fluid"   x1="240" y1="60"  x2="410" y2="60"
+                              stroke="#00e676" stroke-width="3" stroke-linecap="round"
+                              stroke-dasharray="8 6" stroke-opacity="0">
+                            <animate attributeName="stroke-dashoffset" from="-28" to="0" dur="0.7s" repeatCount="indefinite"/>
+                        </line>
+
+                        <!--  ZBIORNIK WYJŚCIOWY (prawy)  -->
+                        <rect x="410" y="30" width="80" height="170" rx="3"
+                              fill="url(#tank-grad)" stroke="#32465c" stroke-width="1.5"/>
+                        <!-- poziom cieczy wyjściowego zbiornika -->
+                        <rect id="tank-fluid-out" x="412" y="198" width="76" height="0"
+                              fill="url(#fluid-grad)" clip-path="url(#tank-out-clip)"/>
+                        <!-- skala -->
+                        <line x1="410" y1="32"  x2="404" y2="32"  stroke="#445" stroke-width="1"/>
+                        <line x1="410" y1="115" x2="406" y2="115" stroke="#445" stroke-width="1"/>
+                        <line x1="410" y1="198" x2="404" y2="198" stroke="#445" stroke-width="1"/>
+                        <text x="400" y="35"  text-anchor="end" font-family="Share Tech Mono,monospace" font-size="7" fill="#556">100%</text>
+                        <text x="400" y="118" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="7" fill="#556"> 50%</text>
+                        <text x="400" y="201" text-anchor="end" font-family="Share Tech Mono,monospace" font-size="7" fill="#556">  0%</text>
+                        <text x="450" y="218" text-anchor="middle"
+                              font-family="Share Tech Mono,monospace" font-size="8" fill="#7a9ab5" letter-spacing="1">ZBIORNIK</text>
+                        <text id="tank-out-level-txt" x="450" y="20" text-anchor="middle"
+                              font-family="Share Tech Mono,monospace" font-size="9" fill="#00e676">--.-- %</text>
+
+                        <!--  WSKAŹNIKI  -->
+                        <!-- enkoder -->
+                        <g transform="translate(370,175)">
+                            <rect x="-28" y="-16" width="56" height="32" rx="3" fill="#1a2d42" stroke="#32465c" stroke-width="1"/>
+                            <text x="0" y="-4" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#556" letter-spacing="1">ENKODER</text>
+                            <text id="viz-encoder-txt" x="0" y="11" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#29e1ff">0</text>
+                        </g>
+                        <!-- potencjometr -->
+                        <g transform="translate(110,130)">
+                            <rect x="-28" y="-22" width="56" height="44" rx="3" fill="#1a2d42" stroke="#32465c" stroke-width="1"/>
+                            <text x="0" y="-10" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="6" fill="#556" letter-spacing="1">POTENCJO</text>
+                            <text id="viz-pot-txt" x="0" y="6" text-anchor="middle" font-family="Share Tech Mono,monospace" font-size="10" fill="#ffd740">0</text>
+                            <rect x="-20" y="12" width="40" height="4" rx="2" fill="#243548"/>
+                            <rect id="viz-pot-bar" x="-20" y="12" width="0" height="4" rx="2" fill="#ffd740"/>
+                        </g>
+
+                    </svg>
+                </div>
             </section>
             
             <section class="card panel-read">
@@ -116,11 +297,12 @@
                     <div class="ctrl-section">
                         <div class="ctrl-section-title">Uruchomienie pompy</div>
                         <div class="btn-row">
-                            <form>
+                            <!-- submit przez AJAX - strona się nie przeładowuje -->
+                            <form onsubmit="window.plcSend(this); return false;">
                                 <input class="hidden" name='"TrybSterowania_DB".startHMI' value="1">
                                 <button class="btn btn-start" type="submit" disabled id="ctrl-start">START</button>
                             </form>
-                            <form>
+                            <form onsubmit="window.plcSend(this); return false;">
                                 <input class="hidden" name='"TrybSterowania_DB".startHMI' value="0">
                                 <button class="btn btn-stop" type="submit" disabled id="ctrl-stop">STOP</button>
                             </form>
@@ -130,11 +312,11 @@
                     <div class="ctrl-section">
                         <div class="ctrl-section-title">Regulacja obrotów</div>
                         <div class="btn-row">
-                            <form>
+                            <form onsubmit="window.plcSend(this); return false;">
                                 <input class="hidden" name='"TrybSterowania_DB".zwiekszHMI' value="1">
                                 <button class="btn btn-up" type="submit" disabled id="ctrl-up">▲ ZWIĘKSZ</button>
                             </form>
-                            <form>
+                            <form onsubmit="window.plcSend(this); return false;">
                                 <input class="hidden" name='"TrybSterowania_DB".zmniejszHMI' value="1">
                                 <button class="btn btn-down" type="submit" disabled id="ctrl-down">▼ ZMNIEJSZ</button>
                             </form>
@@ -155,7 +337,7 @@
                                        oninput="document.getElementById('slider-disp').textContent=this.value">
                                 <span class="slider-bound">27600</span>
                             </div>
-                            <form>
+                            <form onsubmit="window.plcSend(this); return false;">
                                 <input class="hidden" id="slider-hidden" name='"Potencjo"' value="200">
                                 <button class="btn btn-set" type="submit" disabled id="ctrl-set"
                                         onclick="document.getElementById('slider-hidden').value=document.getElementById('slider-pot').value">
@@ -167,7 +349,7 @@
 
                     <div class="ctrl-section">
                         <div class="ctrl-section-title">Alarmy</div>
-                        <form>
+                        <form onsubmit="window.plcSend(this); return false;">
                             <input class="hidden" name='"zaklocenie01"' value="0">
                             <button class="btn btn-reset" type="submit" disabled id="ctrl-reset">RESET ZAKŁÓCENIA</button>
                         </form>
@@ -203,11 +385,11 @@
         </main>
 
         <!-- 
-             AWP – serwer S7 podstawia wartości przy każdym GET strony.
+             AWP - serwer S7 podstawia wartości przy każdym GET strony.
+             WAŻNE: wszystkie div-y AWP TYLKO tutaj, NIE w widocznej tabeli!
              Format przed podstawieniem: NazwaKlucza :="Tag":
              Format po podstawieniu S7:  NazwaKlucza :=0: lub :=1: lub :=1234.5:
         -->
-
         <div style="display:none">
             <!-- TrybSterowania_DB [DB3] - Input (FB1) -->
             <div>startPlc :="TrybSterowania_DB".startPlc:</div>
@@ -218,7 +400,7 @@
             <div>zwiekszHMI :="TrybSterowania_DB".zwiekszHMI:</div>
             <div>zaklocenie01DB :="TrybSterowania_DB".zaklocenie01:</div>
             <div>zmniejszHMI :="TrybSterowania_DB".zmniejszHMI:</div>
-            <!-- TrybSterowania_DB [DB3] – Output (FB1) -->
+            <!-- TrybSterowania_DB [DB3] - Output (FB1) -->
             <div>start :="TrybSterowania_DB".start:</div>
             <div>stop :="TrybSterowania_DB".stop:</div>
             <div>zwieksz :="TrybSterowania_DB".zwieksz:</div>
