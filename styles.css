@@ -97,7 +97,7 @@ body{
     color: var(--green);
 }
 
-.conn-indicator.disconnected { color: var(--red); }
+.connection-indicator.disconnected { color: var(--red); }
 
 .conn-dot {
     width: 9px; height: 9px;
