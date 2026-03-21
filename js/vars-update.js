@@ -1,19 +1,19 @@
 /*
- js/vars-update.js
- Siemens S7-1200 AWP - polling + sterowanie przez GET, format AWP
+  js/vars-update.js
+  Siemens S7-1200 AWP - polling + sterowanie przez GET
  
- LOGIKA ZL (z kodu drabinkowego TIA Portal):
-   ZL = 1  ->  tryb LOKALNY (sterowanie z PLC / fizyczne przyciski)
-   ZL = 0  ->  tryb ZDALNY  (sterowanie z HMI/WWW przez startHMI, zwiekszHMI itp.)
+  LOGIKA ZL:
+    ZL = 1  ->  tryb LOKALNY (sterowanie z PLC / fizyczne przyciski)
+    ZL = 0  ->  tryb ZDALNY  (sterowanie z HMI/WWW przez startHMI, zwiekszHMI itp.)
  
- LOGIKA START/STOP (Network 1/2):
-   start = (startPlc AND ZL) OR (startHMI AND NOT ZL)
-   stop  = (NOT startPlc AND ZL) OR (NOT startHMI AND NOT ZL) OR zaklocenie01
+  LOGIKA START/STOP (Network 1/2):
+    start = (startPlc AND ZL) OR (startHMI AND NOT ZL)
+    stop  = (NOT startPlc AND ZL) OR (NOT startHMI AND NOT ZL) OR zaklocenie01
  
-   Oznacza to że startHMI działa jako sygnał POZIOMOWY:
-     startHMI=1 -> pompa jedzie   (w trybie zdalnym)
-     startHMI=0 -> pompa stoi     (w trybie zdalnym)
-   Wartość MUSI być przechowywana po stronie JS i wysyłana przy każdym pollingu!
+    Oznacza to że startHMI działa jako sygnał POZIOMOWY:
+      startHMI=1 -> pompa jedzie   (w trybie zdalnym)
+      startHMI=0 -> pompa stoi     (w trybie zdalnym)
+    Wartość MUSI być przechowywana po stronie JS i wysyłana przy każdym pollingu!
  */
 
 $(function () {
@@ -32,9 +32,9 @@ $(function () {
     var remoteMode = (sessionStorage.getItem('remoteMode') === '1');
 
     /*
-     startHMI_state: zapamiętana wartość startHMI (0 lub 1)
-     PLC wymaga sygnału poziomowego - musimy go utrzymywać po stronie JS
-     i dołączać do każdego pollingu gdy jesteśmy w trybie zdalnym.
+      startHMI_state: zapamiętana wartość startHMI (0 lub 1)
+      PLC wymaga sygnału poziomowego - musimy go utrzymywać po stronie JS
+      i dołączać do każdego pollingu gdy jesteśmy w trybie zdalnym.
      */
     var startHMI_state = parseInt(sessionStorage.getItem('startHMI_state') || '0');
 
@@ -69,7 +69,7 @@ $(function () {
         'perliter':           'vd-perLiter',
         'obrotyint':          'vd-ObrotyInt',
         'obrotyreal':         'vd-ObrotyReal',
-        'obrotysuma':         'vd-ObrotySuma',
+        'litry':              'vd-litry',
         'obecnaliczbacykli':  'vd-ObecnaLiczbaCykli',
         'buforzaklocen':      'vd-buforzaklocen',
         'zaklocenie22001':    'vd-zaklocenie22001'
@@ -108,8 +108,15 @@ $(function () {
             prev[name] = val;
             anyChange = true;
 
-            var $el    = $('#' + id);
-            if (!$el.length) return;
+            /*
+             sideEffect ZAWSZE przed sprawdzeniem DOM.
+             Wiele kluczowych tagow (sprzeg, poziom, permin, potencjo, obrotyenkodera)
+             nie ma elementow w tabeli HTML - ale wizualizacja SVG ich potrzebuje.
+             */
+            sideEffect(name, val);
+
+            var $el = $('#' + id);
+            if (!$el.length) return;   /* brak w tabeli - pomijamy tylko aktualizacje DOM */
 
             var num    = Number(val);
             var isBool = $el.hasClass('bool-val');
@@ -135,8 +142,6 @@ $(function () {
                 $row.addClass('flash');
                 setTimeout(function () { $row.removeClass('flash'); }, 600);
             }
-
-            sideEffect(name, val);
         });
 
         if (anyChange) {
@@ -153,7 +158,7 @@ $(function () {
         updateViz();
     }
 
-    /*  EFEKTY BOCZNE  */
+    /* EFEKTY BOCZNE */
     function sideEffect(name, val) {
         var on = (val === '1');
         switch (name) {
@@ -161,6 +166,15 @@ $(function () {
                 setLamp('lamp-praca', on);
                 rotatePump(on);
                 addLog('Sprzeg -> ' + (on ? 'PRACA' : 'STOP'), on ? 'ok' : 'warn', 'SPRZEG');
+                break;
+
+            case 'start':
+                /* Jesli brak sprzeg, uzyj 'start' do animacji pompy */
+                if (prev['sprzeg'] === undefined || prev['sprzeg'] === '0') {
+                    setLamp('lamp-praca', on);
+                    rotatePump(on);
+                }
+                if (on) addLog('Sygnał START aktywny', 'ok', 'START');
                 break;
 
             case 'stop':
@@ -193,9 +207,7 @@ $(function () {
                 $('#slider-disp').text(v);
                 break;
 
-            case 'start':
-                if (on) addLog('Sygnał START aktywny', 'ok', 'START');
-                break;
+
 
             case 'starthmi':
                 /* synchronizuj zapamiętany stan startHMI z wartością odczytaną z PLC */
@@ -206,14 +218,14 @@ $(function () {
         }
     }
 
-    /* aktualizuje wyglad przycisków START/STOP na podstawie startHMI_state */
+    /* aktualizuje wygląd przycisków START/STOP na podstawie startHMI_state */
     function _updateStartStopButtons() {
         var running = (startHMI_state === 1);
         $('#ctrl-start').toggleClass('active-cmd', running);
         $('#ctrl-stop').toggleClass('active-cmd', !running);
     }
 
-    /* synchronizuje UI przyciskow z faktycznym stanem trybu */
+    /* synchronizuje UI przycisków z faktycznym stanem trybu */
     function _syncRemoteUI(remote) {
         remoteMode = remote;
         sessionStorage.setItem('remoteMode', remote ? '1' : '0');
@@ -230,35 +242,129 @@ $(function () {
         $('#' + id + ' .lamp-bulb').toggleClass('on', on);
     }
 
+    /* ANIMACJA WIRNIKA - setInterval
+       co 30ms obracamy pump-rotor o odpowiedni kat
+       predkosc zalezna od potencjometru
+     */
+    var _rotorAngle   = 0;
+    var _rotorTimer   = null;
+    var _rotorRunning = false;
+
+    function _rotorTick() {
+        var pot = parseInt(prev['potencjo'] || '0');
+        /* predkosc: od 60 deg/s (pot=0) do 720 deg/s (pot=27600), tick co 30ms */
+        var degsPerTick = (60 + (pot / 27600) * 660) * 0.030;
+        _rotorAngle = (_rotorAngle + degsPerTick) % 360;
+        var rotor = document.getElementById('pump-rotor');
+        if (rotor) { rotor.setAttribute('transform', 'rotate(' + _rotorAngle.toFixed(1) + ')'); }
+    }
+
     function rotatePump(running) {
-        var $r = $('#pump-rotor');
         var $c = $('#svg-pump-circle');
-        $r.removeClass('spinning spinning-slow');
-        if (running) {
-            var pot = parseInt(prev['potencjo'] || '200');
-            $r.addClass(pot > 13800 ? 'spinning' : 'spinning-slow');
-        }
         $c.toggleClass('running', running);
+        if (running === _rotorRunning) return;
+        _rotorRunning = running;
+        console.log('[ROTOR] running=' + running);
+        if (running) {
+            if (!_rotorTimer) {
+                console.log('[ROTOR] start timer');
+                _rotorTimer = setInterval(_rotorTick, 30);
+            }
+        } else {
+            if (_rotorTimer) { clearInterval(_rotorTimer); _rotorTimer = null; }
+            var rotor = document.getElementById('pump-rotor');
+            if (rotor) { rotor.setAttribute('transform', 'rotate(0)'); }
+        }
+    }
+
+    /* SYMULACJA POZIOMU ZBIORNIKOW
+      
+      zbiornik lewy startuje pelny (100%).
+      gdy pompa pracuje (sprzeg=1): lewy sie oproznia, prawy sie napelnia
+      predkosc przeplywu jest proporcjonalna do permin (RPM pompy)
+      gdy pompa stoi: poziomy sie nie zmieniaja
+      gdy lewy osiagnie 0% lub prawy 100%: pompa nie ma co pompowac
+      
+      wartosci sa symulacyjne po stronie JS - nie ida do PLC
+      POLL_MS = 3000ms - aktualizujemy poziomy co poll.
+     */
+    var _tankIn  = 1.0;   /* 0.0 - 1.0, startuje pelny */
+    var _tankOut = 0.0;   /* 0.0 - 1.0, startuje pusty */
+    var _tankLastTs = null;
+
+    /* stala przeplywu: ile procent zbiornika na sekunde przy 1000 RPM */
+    var FLOW_PCT_PER_RPM_PER_SEC = 0.0002;    /* 0.02%/s na 100RPM, ~3%/s na 1500RPM */
+
+    /* pompa pracuje gdy sprzeg=1 LUB start=1 (fallback gdy brak sprzeg) */
+    function _isRunning() {
+        if (prev['sprzeg'] === '1') return true;
+        if (prev['start']  === '1') return true;
+        return false;
+    }
+
+    function _updateTankLevels() {
+        var running = _isRunning();
+        var now = Date.now();
+        if (_tankLastTs === null) { _tankLastTs = now; }
+        var dt = (now - _tankLastTs) / 1000.0;
+        _tankLastTs = now;
+
+        if (running && dt > 0 && dt < 10) {
+            /* Predkosc przeplywu:
+               1) jesli enkoder dziala - uzyj permin (RPM z PLC)
+               2) jesli brak permin - skaluj wg potencjometru (0..27600 -> 200..2000 RPM)
+               3) absolutny fallback: 1000 RPM
+             */
+            var rpm = parseFloat(prev['permin'] || '0');
+            if (rpm < 1) {
+                var pot = parseInt(prev['potencjo'] || '0');
+                rpm = 200 + (pot / 27600) * 1800;  /* 200..2000 RPM wg potencjometru */
+            }
+            var flow = rpm * FLOW_PCT_PER_RPM_PER_SEC * dt;
+            flow = Math.max(0, Math.min(flow, _tankIn, 1.0 - _tankOut));
+            _tankIn  = Math.max(0, _tankIn  - flow);
+            _tankOut = Math.min(1, _tankOut + flow);
+        }
     }
 
     function updateViz() {
-        var running = prev['sprzeg'] === '1';
-        var lvlPct  = Math.max(0, Math.min(1, parseFloat(prev['poziom'] || '0')));
-        var tankH   = Math.round(lvlPct * 166);
-        $('#tank-fluid-in').attr({ y: 198 - tankH, height: tankH });
-        $('#tank-level-txt').text((lvlPct * 100).toFixed(1) + ' %');
-        $('#pump-rpm-txt').text(parseFloat(prev['permin'] || '0').toFixed(0) + ' rpm');
+        _updateTankLevels();
+        var running = _isRunning();
+        /* synchronizuj wirnik z aktualnym stanem - niezaleznie od sideEffect */
+        rotatePump(running);
+
+        /* zbiornik wejsciowy */
+        var inH = Math.round(_tankIn * 166);
+        $('#tank-fluid-in').attr({ y: 198 - inH, height: inH });
+        $('#tank-level-txt').text((_tankIn * 100).toFixed(1) + ' %');
+
+        /* zbiornik wyjsciowy */
+        var outH = Math.round(_tankOut * 166);
+        $('#tank-fluid-out').attr({ y: 198 - outH, height: outH });
+        $('#tank-out-level-txt').text((_tankOut * 100).toFixed(1) + ' %');
+
+        /* pompa RPM */
+        var rpm = parseFloat(prev['permin'] || '0');
+        $('#pump-rpm-txt').text(rpm.toFixed(0) + ' rpm');
+
+        /* enkoder - surowe zliczenia */
         $('#viz-encoder-txt').text(parseInt(prev['obrotyenkodera'] || '0'));
+
+        /* potencjometr */
         var pot    = parseInt(prev['potencjo'] || '0');
         var potPct = Math.max(0, Math.min(1, pot / 27600));
         $('#viz-pot-txt').text(pot);
         $('#viz-pot-bar').attr('width', (potPct * 40).toFixed(1));
+
+        /* rury animowane gdy pompa pracuje */
         $('#pipe-in-fluid, #pipe-v-in-fluid, #pipe-v-out-fluid, #pipe-out-fluid')
             .attr('stroke-opacity', running ? '0.9' : '0');
-        setLampColor('lamp-praca',  running,                         '#00e676');
+
+        /* lampki */
+        setLampColor('lamp-praca',  _isRunning(),                    '#00e676');
         setLampColor('lamp-stop',   prev['stop']         === '1',    '#ff5252');
         setLampColor('lamp-alarm',  prev['zaklocenie01'] === '1',    '#ff5252');
-        setLampColor('lamp-zdalne', prev['zl']           === '0',    '#ffd740');  /* ZL=0 = ZDALNY */
+        setLampColor('lamp-zdalne', prev['zl']           === '0',    '#ffd740');
     }
 
     function setLampColor(id, on, color) {
@@ -270,12 +376,10 @@ $(function () {
             .toggleClass('on', on);
     }
 
-    /*  TRYB ZDALNY / LOKALNY 
-     
-     ZL=0 -> ZDALNY (WWW steruje), ZL=1 -> LOKALNY (PLC steruje)
-     
-     Wysyłamy ZL do PLC. UI odblokuje się natychmiast,
-     ale zostanie zsynchronizowane też przy odpowiedzi PLC (sideEffect 'zl').
+    /* TRYB ZDALNY / LOKALNY
+      ZL=0 -> ZDALNY (WWW steruje), ZL=1 -> LOKALNY (PLC steruje)
+      Wysyłamy ZL do PLC. UI odblokuje się natychmiast,
+      ale zostanie zsynchronizowane też przy odpowiedzi PLC (sideEffect 'zl').
      */
     window.setMode = function (remote) {
         _syncRemoteUI(remote);
@@ -307,26 +411,23 @@ $(function () {
         });
     };
 
-    /*  AJAX SEND 
-    
-     Wysyła formularz do PLC: GET /strona.html?"DB".tag=wartość
-    
-     TYPY SYGNAŁÓW:
-       startHMI  -> POZIOMOWY: zapamiętujemy stan i wysyłamy przy każdym pollingu
-       zwiekszHMI/zmniejszHMI -> IMPULSOWE: wysyłamy 1, po odpowiedzi PLC wysyłamy 0
-       pozostałe -> jednorazowe (potencjo, zaklocenie reset)
-    
-     IMPULS dla zwiększ/zmniejsz:
-       Krok 1: wyślij tag=1 do PLC
-       Krok 2: po sukcesie wyślij tag=0 (kasowanie impulsu)
-       PLC widzi zbocze 0->1 i wykonuje akcję, potem wróci do 0
+    /* AJAX SEND
+       Wysyła formularz do PLC: GET /strona.html?"DB".tag=wartość
+       TYPY SYGNAŁÓW:
+         startHMI  -> POZIOMOWY: zapamiętujemy stan i wysyłamy przy każdym pollingu
+         zwiekszHMI/zmniejszHMI -> IMPULSOWE: wysyłamy 1, po odpowiedzi PLC wysyłamy 0
+         pozostałe -> jednorazowe (potencjo, zaklocenie reset)
+       IMPULS dla zwiększ/zmniejsz:
+         Krok 1: wyślij tag=1 do PLC
+         Krok 2: po sukcesie wyślij tag=0 (kasowanie impulsu)
+         PLC widzi zbocze 0->1 i wykonuje akcję, potem wróci do 0
      */
     var _sendBusy = false;
 
-    /* Tagi które wymagają impulsu (wysłanie 1 a potem automatyczne 0) */
+    /* tagi które wymagają impulsu (wysłanie 1 a potem automatyczne 0) */
     var PULSE_TAGS = ['"TrybSterowania_DB".zwiekszHMI', '"TrybSterowania_DB".zmniejszHMI'];
 
-    /* wysyła pojedynczy parametr GET do PLC (wewnetrzna funkcja) */
+    /* wysyła pojedynczy parametr GET do PLC (wewnętrzna funkcja) */
     function _ajaxSend(params, label, onSuccess, onComplete) {
         $.ajax({
             url:     POLL_URL + '?' + params,
@@ -419,14 +520,14 @@ $(function () {
         }
     };
 
-    /*  WSKAŹNIK POŁĄCZENIA  */
+    /* WSKAŹNIK POŁĄCZENIA */
     function setConn(ok) {
         $('#conn-dot').removeClass('connected disconnected').addClass(ok ? 'connected' : 'disconnected');
         $('#conn-label').text(ok ? 'POŁĄCZONY' : 'ROZŁĄCZONO');
         $('.connection-indicator').removeClass('connected disconnected').addClass(ok ? 'connected' : 'disconnected');
     }
 
-    /*  DZIENNIK  */
+    /* DZIENNIK */
     function addLog(msg, type, tag) {
         type = type || 'info'; tag = tag || '-';
         var $entry = $('<div class="log-entry ' + type + '">' +
@@ -441,7 +542,7 @@ $(function () {
         $('#log-list').empty(); eventCount = 0; $('#event-count').text('Zdarzenia: 0');
     };
 
-    /*  WYKRES  */
+    /* WYKRES */
     var chartData = { rpm: [], liter: [], pot: [] };
     var canvas, ctx;
 
@@ -492,15 +593,27 @@ $(function () {
     }
     window.clearChart = function () { chartData.rpm=[]; chartData.liter=[]; chartData.pot=[]; drawChart(); };
 
-    /*  ZEGAR  */
+    /* reset zbiornikow do stanu poczatkowego (lewy pelny, prawy pusty) */
+    window.resetTanks = function () {
+        _tankIn  = 1.0;
+        _tankOut = 0.0;
+        _tankLastTs = null;
+        prev['litry'] = '0';
+        $('#vd-litry').text('0').removeClass('val-true val-false').addClass('val-num');
+        console.log('[TANK] reset: in=1.0 out=0.0');
+        updateViz();
+        addLog('Zbiorniki zresetowane: lewy 100%, prawy 0%, litry 0', 'ok', 'VIZ');
+    };
+
+    /* ZEGAR */
     function clock() { var d=new Date(); $('#clock-time').text(d.toLocaleTimeString('pl-PL')); $('#date-time').text(d.toLocaleDateString('pl-PL')); }
     setInterval(clock, 1000); clock();
 
-    /*  POLLING 
-     KLUCZOWE: gdy jesteśmy w trybie zdalnym, dołączamy do każdego
-     pollingu aktualny stan startHMI_state. Dzięki temu PLC
-     (który potrzebuje sygnału poziomowego) zawsze wie czy pompa
-     ma pracować czy stać.
+    /* POLLING
+       KLUCZOWE: gdy jesteśmy w trybie zdalnym, dołączamy do każdego
+       pollingu aktualny stan startHMI_state. Dzięki temu PLC
+       (który potrzebuje sygnału poziomowego) zawsze wie czy pompa
+       ma pracować czy stać
      */
     var _pollTimer = null;
     var _pollBusy  = false;
@@ -509,7 +622,7 @@ $(function () {
         if (_pollBusy) return;
         _pollBusy = true;
 
-        /* Buduj URL pollingu */
+        /* buduj URL pollingu */
         var pollUrl = POLL_URL;
 
         if (remoteMode) {
@@ -550,7 +663,7 @@ $(function () {
         });
     }
 
-    /*  START  */
+    /* START */
     initChart();
     if (remoteMode) {
         $('#mode-badge').text('ZDALNY').addClass('remote');
@@ -560,6 +673,7 @@ $(function () {
         $('#slider-pot').prop('disabled', false);
         _updateStartStopButtons();
     }
+    updateViz();   /* narysuj zbiorniki od razu - lewy pelny */
     addLog('Webserwer uruchomiony · ' + POLL_URL, 'ok', 'SYSTEM');
     addLog('Logika ZL: ZL=0->ZDALNY, ZL=1->LOKALNY', 'info', 'SYSTEM');
     addLog('Oczekiwanie na dane S7...', 'info', 'SYSTEM');
