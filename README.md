@@ -203,6 +203,7 @@ Connect the generated DB (DB333) to the `CTRL_DB` input of the WWW block.
 ## Browser Compatibility
 
 Tested with the S7-1200 built-in Chromium-based browser. The rotor animation uses `setInterval` + `SVG setAttribute` instead of `requestAnimationFrame` + CSS transforms for maximum compatibility with older embedded browsers.
+
 ---
 
 ## Dependencies
