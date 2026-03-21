@@ -5,6 +5,8 @@
 <!-- AWP_In_Variable Name='"TrybSterowania_DB".zaklocenie01' -->
 <!-- AWP_In_Variable Name='"Potencjo"' -->
 <!-- AWP_In_Variable Name='"zaklocenie01"' -->
+<!-- AWP_In_Variable Name='"litry"' -->
+
 <!DOCTYPE html>
 <html lang="pl-PL">
     <head>
@@ -35,10 +37,8 @@
 
         <main class="main-grid">
             <section class="card panel-visual" id="">
-                <!-- wizualizacja pompy - SVG generowany statycznie, JS aktualizuje wartości -->
                 <div class="card-header">
                     <span class="card-title">Wizualizacja układu</span>
-                    <!-- lampki sygnalizacyjne -->
                     <div class="viz-status-bar">
                         <span class="lamp-item" id="lamp-praca">
                             <span class="lamp-bulb"></span>
@@ -57,6 +57,7 @@
                             <span class="lamp-label">ZDALNE</span>
                         </span>
                     </div>
+                    <button class="btn-clear" onclick="window.resetTanks()" style="margin-left:auto">↺ Reset</button>
                 </div>
 
                 <div class="card-body viz-body">
@@ -78,23 +79,19 @@
                                 <feGaussianBlur stdDeviation="3" result="blur"/>
                                 <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
                             </filter>
-                            <!-- clip zbiornika wejściowego -->
                             <clipPath id="tank-clip">
                                 <rect x="32" y="32" width="76" height="166"/>
                             </clipPath>
-                            <!-- clip zbiornika wyjściowego -->
                             <clipPath id="tank-out-clip">
                                 <rect x="412" y="32" width="76" height="166"/>
                             </clipPath>
                         </defs>
 
-                        <!--  ZBIORNIK WEJŚCIOWY (lewy)  -->
+                        <!-- ZBIORNIK WEJŚCIOWY (lewy) -->
                         <rect x="30" y="30" width="80" height="170" rx="3"
                               fill="url(#tank-grad)" stroke="#32465c" stroke-width="1.5"/>
-                        <!-- poziom cieczy - y i height ustawiane przez JS -->
                         <rect id="tank-fluid-in" x="32" y="198" width="76" height="0"
                               fill="url(#fluid-grad)" clip-path="url(#tank-clip)"/>
-                        <!-- skala -->
                         <line x1="108" y1="32"  x2="114" y2="32"  stroke="#445" stroke-width="1"/>
                         <line x1="108" y1="115" x2="112" y2="115" stroke="#445" stroke-width="1"/>
                         <line x1="108" y1="198" x2="114" y2="198" stroke="#445" stroke-width="1"/>
@@ -106,30 +103,30 @@
                         <text id="tank-level-txt" x="70" y="20" text-anchor="middle"
                               font-family="Share Tech Mono,monospace" font-size="9" fill="#00d4ff">--.-- %</text>
 
-                        <!--  RURA SSAWNA (zbiornik -> pompa)  -->
-                        <!-- rura - dwie linie (obramowanie + wnętrze ciemne) -->
+                        <!-- RURA SSAWNA pozioma (lewy zbiornik -> pompa, w PRAWO) -->
                         <line x1="110" y1="198" x2="240" y2="198" stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
                         <line x1="110" y1="198" x2="240" y2="198" stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
-                        <line x1="240" y1="170" x2="240" y2="200" stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
-                        <line x1="240" y1="170" x2="240" y2="200" stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
-                        <!-- fluid animowany - opacity 0 gdy pompa stoi -->
+                        <!-- fluid: lewo->prawo = from="0" to="-28" -->
                         <line id="pipe-in-fluid" x1="112" y1="198" x2="238" y2="198"
                               stroke="#00d4ff" stroke-width="3" stroke-linecap="round"
                               stroke-dasharray="8 6" stroke-opacity="0">
                             <animate attributeName="stroke-dashoffset" from="0" to="-28" dur="0.7s" repeatCount="indefinite"/>
                         </line>
+
+                        <!-- RURA SSAWNA pionowa (dół -> pompa, w GÓRĘ) -->
+                        <line x1="240" y1="170" x2="240" y2="200" stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
+                        <line x1="240" y1="170" x2="240" y2="200" stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
+                        <!-- fluid: dół->góra = from="0" to="28" -->
                         <line id="pipe-v-in-fluid" x1="240" y1="172" x2="240" y2="198"
                               stroke="#00d4ff" stroke-width="3" stroke-linecap="round"
                               stroke-dasharray="8 6" stroke-opacity="0">
-                            <animate attributeName="stroke-dashoffset" from="0" to="-28" dur="0.7s" repeatCount="indefinite"/>
+                            <animate attributeName="stroke-dashoffset" from="0" to="28" dur="0.7s" repeatCount="indefinite"/>
                         </line>
 
-                        <!--  POMPA ODŚRODKOWA  -->
+                        <!-- POMPA ODŚRODKOWA -->
                         <g id="svg-pump" transform="translate(240,130)">
-                            <!-- obudowa -->
                             <circle id="svg-pump-circle" r="42" fill="url(#pump-grad)" stroke="#32465c" stroke-width="2"/>
                             <circle r="32" fill="none" stroke="#243548" stroke-width="8"/>
-                            <!-- wirnik - klasa spinning / spinning-slow dodawana przez JS -->
                             <g id="pump-rotor">
                                 <line x1="0"    y1="-22"  x2="0"   y2="-10"  stroke="#29e1ff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
                                 <line x1="15.6" y1="-15.6" x2="7.1" y2="-7.1" stroke="#29e1ff" stroke-width="2.5" stroke-linecap="round" opacity="0.8"/>
@@ -147,7 +144,7 @@
                                   font-family="Share Tech Mono,monospace" font-size="8" fill="#7a9ab5" letter-spacing="1">POMPA P-01</text>
                         </g>
 
-                        <!-- ikona alarmu - ukryta gdy brak zakłócenia -->
+                        <!-- ikona alarmu -->
                         <g id="svg-fault" class="hidden" transform="translate(240,130)">
                             <polygon points="0,-18 16,10 -16,10" fill="none" stroke="#ff5252"
                                      stroke-width="2.5" filter="url(#glow-strong)"/>
@@ -155,32 +152,36 @@
                                   font-size="11" fill="#ff5252" font-weight="bold">!</text>
                         </g>
 
-                        <!--  RURA TŁOCZNA (pompa → zbiornik wyjściowy)  -->
+                        <!-- RURA TŁOCZNA pionowa (pompa -> góra, w GÓRĘ) -->
                         <line x1="240" y1="88"  x2="240" y2="62"  stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
                         <line x1="240" y1="88"  x2="240" y2="62"  stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
-                        <line x1="238" y1="60"  x2="412" y2="60"  stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
-                        <line x1="238" y1="60"  x2="412" y2="60"  stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
-                        <line x1="412" y1="60"  x2="412" y2="34"  stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
-                        <line x1="412" y1="60"  x2="412" y2="34"  stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
-                        <!-- fluid tłoczny -->
+                        <!-- fluid: dół->góra = from="0" to="28" -->
                         <line id="pipe-v-out-fluid" x1="240" y1="90"  x2="240" y2="64"
                               stroke="#00e676" stroke-width="3" stroke-linecap="round"
                               stroke-dasharray="8 6" stroke-opacity="0">
-                            <animate attributeName="stroke-dashoffset" from="-28" to="0" dur="0.7s" repeatCount="indefinite"/>
+                            <animate attributeName="stroke-dashoffset" from="0" to="-28" dur="0.7s" repeatCount="indefinite"/>
                         </line>
+
+                        <!-- RURA TŁOCZNA pozioma (góra -> prawy zbiornik, w PRAWO) -->
+                        <line x1="238" y1="60"  x2="412" y2="60"  stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
+                        <line x1="238" y1="60"  x2="412" y2="60"  stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
+                        <!-- fluid: lewo->prawo = from="0" to="-28" -->
                         <line id="pipe-out-fluid"   x1="240" y1="60"  x2="410" y2="60"
                               stroke="#00e676" stroke-width="3" stroke-linecap="round"
                               stroke-dasharray="8 6" stroke-opacity="0">
-                            <animate attributeName="stroke-dashoffset" from="-28" to="0" dur="0.7s" repeatCount="indefinite"/>
+                            <animate attributeName="stroke-dashoffset" from="0" to="-28" dur="0.7s" repeatCount="indefinite"/>
                         </line>
 
-                        <!--  ZBIORNIK WYJŚCIOWY (prawy)  -->
+                        <!-- RURA TŁOCZNA pionowa prawa (góra -> zbiornik prawy, w DÓŁ) -->
+                        <line x1="412" y1="60"  x2="412" y2="34"  stroke="#32465c" stroke-width="8"  stroke-linecap="round"/>
+                        <line x1="412" y1="60"  x2="412" y2="34"  stroke="#0d1620" stroke-width="5"  stroke-linecap="round"/>
+                        <!-- Brak animacji na tej rurze - jest bardzo krótka -->
+
+                        <!-- ZBIORNIK WYJŚCIOWY (prawy) -->
                         <rect x="410" y="30" width="80" height="170" rx="3"
                               fill="url(#tank-grad)" stroke="#32465c" stroke-width="1.5"/>
-                        <!-- poziom cieczy wyjściowego zbiornika -->
                         <rect id="tank-fluid-out" x="412" y="198" width="76" height="0"
                               fill="url(#fluid-grad)" clip-path="url(#tank-out-clip)"/>
-                        <!-- skala -->
                         <line x1="410" y1="32"  x2="404" y2="32"  stroke="#445" stroke-width="1"/>
                         <line x1="410" y1="115" x2="406" y2="115" stroke="#445" stroke-width="1"/>
                         <line x1="410" y1="198" x2="404" y2="198" stroke="#445" stroke-width="1"/>
@@ -192,7 +193,7 @@
                         <text id="tank-out-level-txt" x="450" y="20" text-anchor="middle"
                               font-family="Share Tech Mono,monospace" font-size="9" fill="#00e676">--.-- %</text>
 
-                        <!--  WSKAŹNIKI  -->
+                        <!-- WSKAŹNIKI -->
                         <!-- enkoder -->
                         <g transform="translate(370,175)">
                             <rect x="-28" y="-16" width="56" height="32" rx="3" fill="#1a2d42" stroke="#32465c" stroke-width="1"/>
@@ -211,7 +212,7 @@
                     </svg>
                 </div>
             </section>
-            
+
             <section class="card panel-read">
                 <div class="card-header">
                     <span class="card-title">Odczyt zmiennych PLC</span>
@@ -268,11 +269,11 @@
                                 <span class="var-type">Real</span>
                                 <span class="var-val val-num" id="vd-ObrotyReal">-</span>
                             </div>
-                            <div class="var-row" data-var="ObrotySuma">
+                            <div class="var-row" data-var="litry">
                                 <span class="var-addr">%MD2012</span>
-                                <span class="var-name">ObrotySuma</span>
+                                <span class="var-name">litry</span>
                                 <span class="var-type">UDInt</span>
-                                <span class="var-val val-num" id="vd-ObrotySuma">-</span>
+                                <span class="var-val val-num" id="vd-litry">-</span>
                             </div>
                         </div>
                 </div>
@@ -297,7 +298,6 @@
                     <div class="ctrl-section">
                         <div class="ctrl-section-title">Uruchomienie pompy</div>
                         <div class="btn-row">
-                            <!-- submit przez AJAX - strona się nie przeładowuje -->
                             <form onsubmit="window.plcSend(this); return false;">
                                 <input class="hidden" name='"TrybSterowania_DB".startHMI' value="1">
                                 <button class="btn btn-start" type="submit" disabled id="ctrl-start">START</button>
@@ -384,9 +384,8 @@
 
         </main>
 
-        <!-- 
+        <!--
              AWP - serwer S7 podstawia wartości przy każdym GET strony.
-             WAŻNE: wszystkie div-y AWP TYLKO tutaj, NIE w widocznej tabeli!
              Format przed podstawieniem: NazwaKlucza :="Tag":
              Format po podstawieniu S7:  NazwaKlucza :=0: lub :=1: lub :=1234.5:
         -->
@@ -415,7 +414,7 @@
             <div>perLiter :="per liter":</div>
             <div>ObrotyInt :="ObrotyInt":</div>
             <div>ObrotyReal :="ObrotyReal":</div>
-            <div>ObrotySuma :="ObrotySuma":</div>
+            <div>litry :="litry":</div>
             <div>ObecnaLiczbaCykli :="ObecnaLiczbaCykli":</div>
             <div>buforzaklocen :="buforzaklocen":</div>
             <div>zaklocenie22001 :="zaklocenie22001":</div>
@@ -438,5 +437,5 @@
         <script src="js/vars-update.js"></script>
 
     </body>
-    
+
 </html>
